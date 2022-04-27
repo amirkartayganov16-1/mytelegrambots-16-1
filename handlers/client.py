@@ -1,8 +1,10 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from aiogram import types, Dispatcher
-from config import bot, dp, ADMIN
+from config import bot, ADMIN, dp
+from parser import news
+from aiogram.utils.markdown import hbold, hlink
+import datetime
 
-# @dp.message_handler(commands=['start'])
 async def hello(message: types.Message):
     await bot.send_message(message.chat.id, f"Салам хозяин, {message.from_user.full_name}!")
 
@@ -64,10 +66,20 @@ async def ban(message: types.Message):
                 f"{message.reply_to_message.from_user.full_name} забанен по воле администратора {message.from_user.full_name}")
 
     else:
-        await message.answer("Данная команда доступна только в группах!")
+        await message.answer("Данная команда доступна только в группаx")
+
+
+async def get_all_news(message: types.Message):
+    for v in news.get_first_news():
+        news1 = f"{hbold(datetime.datetime.fromtimestamp(v['article_date_timestamp']))}\n" \
+               f"{hlink(v['article_title'], v['article_url'])}"
+        await message.answer(news1)
+
+
 
 def register_hendlers_client(dp: Dispatcher):
     dp.register_message_handler(hello, commands=["start"])
     dp.register_message_handler(quiz, commands=["quiz"])
     dp.register_message_handler(quiz, commands=["quiz1"])
     dp.register_message_handler(ban, commands=["ban"], commands_prefix="!/")
+    dp.register_message_handler(get_all_news, commands=["news"])
